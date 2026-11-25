@@ -29,7 +29,7 @@ jobs:
             process.exit(0);
           }
 
-          const exts = [".jpg", ".jpeg", ".png", ".webp", ".gif"];
+          const exts = [".jpg", ".jpeg", ".png", ".webp", ".gif", ".mp4", ".webm", ".ogg", ".mov", ".m4v"];
           const files = fs.readdirSync(dir)
             .filter(file => exts.includes(path.extname(file).toLowerCase()))
             .sort((a, b) => a.localeCompare(b, "pt-BR"));

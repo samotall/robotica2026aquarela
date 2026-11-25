@@ -369,7 +369,8 @@
             .slideshow-stage { height: 240px; }
         }
 
-        .slideshow-stage img {
+        .slideshow-stage img,
+        .slideshow-stage video {
             width: 100%;
             height: 100%;
             object-fit: contain;
@@ -823,11 +824,11 @@
             <p>Momentos marcantes das aulas e da apresentação dos projetos</p>
         </div>
 
-        <!-- Carrossel automático com fotos locais da pasta galeria/ -->
-        <!-- A lista de fotos é gerada pelo workflow atualizar-galeria.yml. -->
+        <!-- Carrossel automático com fotos e vídeos locais da pasta galeria/ -->
+        <!-- A lista de mídias é gerada pelo workflow atualizar-galeria.yml. -->
         <div class="slideshow-box" id="slideBox">
             <div class="slideshow-stage">
-                <img id="slideImg" alt="Carregando fotos da galeria">
+                <img id="slideImg" alt="Carregando galeria"><video id="slideVideo" controls playsinline muted hidden></video>
             </div>
             <div class="slideshow-caption">
                 <span id="slideLegenda" style="font-weight: 700; color: var(--ink);">Carregando fotos...</span>
@@ -910,6 +911,7 @@
         let intervaloSlide = null;
 
         const slideImg = document.getElementById('slideImg');
+        const slideVideo = document.getElementById('slideVideo');
         const slideLegenda = document.getElementById('slideLegenda');
         const slideBox = document.getElementById('slideBox');
 
@@ -917,16 +919,45 @@
             if (!slideImg || !slideLegenda) return;
 
             if (!slides.length) {
+                pararAutoPlay();
+                slideImg.hidden = false;
                 slideImg.removeAttribute('src');
-                slideImg.alt = 'Nenhuma foto encontrada na galeria';
-                slideLegenda.textContent = 'Adicione fotos na pasta galeria/ para iniciar o slide';
+                slideImg.alt = 'Nenhuma mídia encontrada na galeria';
+                if (slideVideo) {
+                    slideVideo.pause();
+                    slideVideo.removeAttribute('src');
+                    slideVideo.load();
+                    slideVideo.hidden = true;
+                }
+                slideLegenda.textContent = 'Adicione fotos ou vídeos na pasta galeria/ para iniciar o slide';
                 return;
             }
 
             const arquivo = slides[slideAtual];
-            slideImg.src = 'galeria/' + encodeURIComponent(arquivo);
-            slideImg.alt = 'Foto ' + (slideAtual + 1) + ' de ' + slides.length;
+            const caminho = 'galeria/' + encodeURIComponent(arquivo);
+            const ehVideo = /\.(mp4|webm|ogg|mov|m4v)$/i.test(arquivo);
             slideLegenda.textContent = (slideAtual + 1) + ' / ' + slides.length;
+
+            if (ehVideo && slideVideo) {
+                pararAutoPlay();
+                slideImg.hidden = true;
+                slideVideo.hidden = false;
+                slideVideo.src = caminho;
+                slideVideo.load();
+                slideVideo.play().catch(() => {});
+                return;
+            }
+
+            if (slideVideo) {
+                slideVideo.pause();
+                slideVideo.removeAttribute('src');
+                slideVideo.load();
+                slideVideo.hidden = true;
+            }
+            slideImg.hidden = false;
+            slideImg.src = caminho;
+            slideImg.alt = 'Foto ' + (slideAtual + 1) + ' de ' + slides.length;
+            iniciarAutoPlay();
         }
 
         function mudarSlide(direcao) {
@@ -937,7 +968,7 @@
 
         function iniciarAutoPlay() {
             pararAutoPlay();
-            if (slides.length > 1) {
+            if (slides.length > 1 && (!slideVideo || slideVideo.hidden)) {
                 intervaloSlide = setInterval(() => mudarSlide(1), 3500);
             }
         }
@@ -949,9 +980,19 @@
             }
         }
 
+        if (slideVideo) {
+            slideVideo.addEventListener('ended', () => mudarSlide(1));
+        }
+
         if (slideBox) {
-            slideBox.addEventListener('mouseenter', pararAutoPlay);
-            slideBox.addEventListener('mouseleave', iniciarAutoPlay);
+            slideBox.addEventListener('mouseenter', () => {
+                pararAutoPlay();
+                if (slideVideo && !slideVideo.hidden) slideVideo.pause();
+            });
+            slideBox.addEventListener('mouseleave', () => {
+                if (slideVideo && !slideVideo.hidden) slideVideo.play().catch(() => {});
+                else iniciarAutoPlay();
+            });
         }
 
         fetch('galeria.json')
