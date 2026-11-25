@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nova Aquarela — Biblioteca de Jogos de Robótica</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@500;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-paper: #FDFCF7;
+            --dot-color: #E2DFD3;
+            --ink: #262335;
+            --ink-soft: #524D6B;
+
+            --lilac-main: #9B5DE5;
+            --lilac-soft: #F3E8FF;
+            --lilac-border: #7C3AED;
+
+            --green-main: #2EC4B6;
+            --green-leaf: #4ADE80;
+            --green-soft: #E6F9EE;
+            --green-border: #15803D;
+
+            --sun-yellow: #FDE047;
+            --coral-pink: #FF8FA3;
+            --sky-blue: #38BDF8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-paper);
+            background-image: radial-gradient(var(--dot-color) 1.5px, transparent 1.5px);
+            background-size: 24px 24px;
+            color: var(--ink);
+            font-family: 'Nunito', sans-serif;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        h1, h2, h3, .font-display {
+            font-family: 'Fredoka', sans-serif;
+            letter-spacing: 0.01em;
+        }
+
+        .sticker-card {
+            background: #FFFFFF;
+            border: 3px solid var(--ink);
+            border-radius: 28px;
+            box-shadow: 6px 6px 0px var(--ink);
+            transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease;
+        }
+
+        .sticker-card:hover {
+            transform: translate(-2px, -4px) rotate(-0.5deg);
+            box-shadow: 9px 10px 0px var(--ink);
+        }
+
+        .btn-tactile {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-family: 'Fredoka', sans-serif;
+            font-weight: 600;
+            font-size: 1.05rem;
+            padding: 12px 24px;
+            border-radius: 999px;
+            border: 3px solid var(--ink);
+            box-shadow: 4px 4px 0px var(--ink);
+            cursor: pointer;
+            text-decoration: none;
+            color: var(--ink);
+            transition: all 0.15s ease;
+        }
+
+        .btn-tactile:active:not(:disabled) {
+            transform: translate(3px, 3px);
+            box-shadow: 1px 1px 0px var(--ink);
+        }
+
+        .btn-tactile:disabled {
+            opacity: 0.65;
+            cursor: not-allowed;
+            background-color: #E5E7EB;
+        }
+
+        .btn-green { background-color: var(--green-leaf); }
+        .btn-lilac { background-color: #D8B4FE; }
+        .btn-blue { background-color: #7DD3FC; }
+        .btn-coral { background-color: var(--coral-pink); }
+        .btn-yellow { background-color: var(--sun-yellow); }
+
+        header {
+            max-width: 1120px;
+            margin: 24px auto 0;
+            padding: 0 20px;
+        }
+
+        .nav-pill {
+            background: #FFFFFF;
+            border: 3px solid var(--ink);
+            border-radius: 999px;
+            padding: 12px 28px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 5px 5px 0px var(--lilac-main);
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .logo-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .logo-wrapper img {
+            height: 52px;
+            width: auto;
+            object-fit: contain;
+            filter: drop-shadow(2px 2px 0px rgba(38, 35, 53, 0.15));
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .nav-tag {
+            font-family: 'Fredoka', sans-serif;
+            font-weight: 600;
+            padding: 8px 18px;
+            border-radius: 999px;
+            text-decoration: none;
+            color: var(--ink);
+            border: 2px solid transparent;
+            transition: 0.2s;
+        }
+
+        .nav-tag:hover {
+            background: var(--lilac-soft);
+            border-color: var(--ink);
+        }
+
+        .hero {
+            max-width: 1120px;
+            margin: 48px auto 64px;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: 1.15fr 0.85fr;
+            gap: 36px;
+            align-items: center;
+        }
+
+        @media (max-width: 860px) {
+            .hero { grid-template-columns: 1fr; text-align: center; }
+            .hero-actions { justify-content: center; }
+        }
+
+        .badge-turno {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--green-soft);
+            border: 2.5px solid var(--ink);
+            padding: 6px 16px;
+            border-radius: 999px;
+            font-family: 'Fredoka', sans-serif;
+            font-weight: 600;
+            font-size: 0.95rem;
+            margin-bottom: 18px;
+            transform: rotate(-1.5deg);
+            box-shadow: 3px 3px 0px var(--green-leaf);
+        }
+
+        .hero h1 {
+            font-size: clamp(2.3rem, 4.2vw, 3.4rem);
+            line-height: 1.12;
+            margin-bottom: 18px;
+            color: var(--ink);
+        }
+
+        .highlight-green {
+            background: #BBF7D0;
+            padding: 0 12px;
+            border-radius: 14px;
+            border: 2.5px solid var(--ink);
+            display: inline-block;
+            transform: rotate(-1deg);
+        }
+
+        .hero p {
+            font-size: 1.15rem;
+            color: var(--ink-soft);
+            margin-bottom: 28px;
+            max-width: 540px;
+        }
+
+        .hero-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .art-board {
+            background: linear-gradient(145deg, var(--lilac-soft) 0%, var(--green-soft) 100%);
+            border: 3px solid var(--ink);
+            border-radius: 36px;
+            padding: 32px;
+            position: relative;
+            box-shadow: 8px 8px 0px var(--lilac-main);
+            text-align: center;
+        }
+
+        .tape-strip {
+            position: absolute;
+            top: -14px;
+            left: 50%;
+            transform: translateX(-50%) rotate(-2deg);
+            width: 130px;
+            height: 28px;
+            background: rgba(253, 224, 71, 0.85);
+            border: 2px solid var(--ink);
+        }
+
+        .art-board img {
+            max-width: 260px;
+            width: 100%;
+            margin: 12px auto 18px;
+            display: block;
+            animation: floatSlow 4s ease-in-out infinite;
+        }
+
+        @keyframes floatSlow {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-8px) rotate(1.5deg); }
+        }
+
+        .section-container {
+            max-width: 1120px;
+            margin: 0 auto 72px;
+            padding: 0 20px;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .section-header h2 {
+            font-size: 2.3rem;
+            margin-bottom: 8px;
+        }
+
+        .section-header p {
+            color: var(--ink-soft);
+            font-size: 1.1rem;
+        }
+
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 32px;
+            align-items: stretch;
+        }
+
+        .game-card {
+            padding: 32px 28px 28px 28px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 100%;
+        }
+
+        .game-card.theme-green { background-color: #F4FDF7; box-shadow: 6px 6px 0px var(--green-leaf); }
+        .game-card.theme-lilac { background-color: #FAF5FF; box-shadow: 6px 6px 0px var(--lilac-main); }
+        .game-card.theme-blue { background-color: #F0F9FF; box-shadow: 6px 6px 0px var(--sky-blue); }
+        .game-card.theme-yellow { background-color: #FEFCE8; box-shadow: 6px 6px 0px var(--sun-yellow); }
+
+        .card-top-info {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 14px;
+            min-height: 76px;
+        }
+
+        .game-badge {
+            font-family: 'Fredoka', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 999px;
+            border: 2px solid var(--ink);
+            background: #FFFFFF;
+            white-space: nowrap;
+            flex-shrink: 0;
+            box-shadow: 2px 2px 0px rgba(38,35,53,0.1);
+        }
+
+        .game-badge.pending {
+            background: #FEF3C7;
+        }
+
+        .game-preview-box {
+            background: #FFFFFF;
+            border: 2.5px solid var(--ink);
+            border-radius: 20px;
+            height: 130px;
+            margin: 16px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+            padding: 10px;
+        }
+
+        .game-mechanic-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #FFFFFF;
+            border: 2px solid var(--ink);
+            padding: 4px 10px;
+            border-radius: 10px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            margin-right: 4px;
+            margin-bottom: 6px;
+        }
+
+        .slideshow-box {
+            background: #FFFFFF;
+            border: 3px solid var(--ink);
+            border-radius: 28px;
+            box-shadow: 6px 6px 0px var(--ink);
+            padding: 20px;
+            max-width: 720px;
+            margin: 0 auto 36px;
+        }
+
+        .slideshow-stage {
+            position: relative;
+            width: 100%;
+            height: 360px;
+            border: 2.5px solid var(--ink);
+            border-radius: 20px;
+            overflow: hidden;
+            background: #262335;
+        }
+
+        @media (max-width: 600px) {
+            .slideshow-stage { height: 240px; }
+        }
+
+        .slideshow-stage img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .slideshow-caption {
+            margin-top: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .slideshow-controls {
+            display: flex;
+            gap: 10px;
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+        }
+
+        .gallery-item {
+            background: #FFFFFF;
+            border: 3px solid var(--ink);
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 5px 5px 0px var(--ink);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .gallery-media {
+            width: 100%;
+            height: 200px;
+            background: #E2DFD3;
+            object-fit: cover;
+            border-bottom: 3px solid var(--ink);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--ink-soft);
+            font-weight: 700;
+        }
+
+        .gallery-info {
+            padding: 16px;
+            background: #FFFBEB;
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(38, 35, 53, 0.82);
+            backdrop-filter: blur(4px);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-window {
+            background: var(--bg-paper);
+            border: 4px solid var(--ink);
+            border-radius: 32px;
+            box-shadow: 10px 10px 0px var(--lilac-main);
+            width: 100%;
+            max-width: 900px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-header {
+            background: #FFFFFF;
+            border-bottom: 3px solid var(--ink);
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .modal-body {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 4 / 3;
+            max-height: 75vh;
+            background: #000000;
+        }
+
+        .modal-body iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block;
+        }
+
+        footer {
+            background: #FFFFFF;
+            border-top: 3px solid var(--ink);
+            padding: 32px 20px;
+            text-align: center;
+        }
+
+        .footer-inner {
+            max-width: 1120px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <nav class="nav-pill">
+            <div class="logo-wrapper">
+                <img src="LOGOTIPO OFICIAL fundo azul.png" alt="Logotipo Escola Nova Aquarela">
+                <div>
+                    <span class="font-display" style="font-weight: 700; font-size: 1.15rem; display: block; line-height: 1.1;">Nova Aquarela</span>
+                    <span style="font-size: 0.85rem; color: var(--ink-soft); font-weight: 700;">Biblioteca de Robótica</span>
+                </div>
+            </div>
+
+            <div class="nav-links">
+                <a href="#biblioteca" class="nav-tag">Jogos</a>
+                <a href="#galeria" class="nav-tag">Galeria & Vídeos</a>
+            </div>
+        </nav>
+    </header>
+
+    <section class="hero">
+        <div>
+            <div class="badge-turno">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="#FDE047" stroke="#262335" stroke-width="2.2">
+                    <circle cx="12" cy="12" r="5"/>
+                    <path d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32l1.41 1.41M2 12h2m16 0h2M4.93 19.07l1.41-1.41m11.32-11.32l1.41-1.41"/>
+                </svg>
+                Aulas de Robótica • Programação & Criatividade
+            </div>
+
+            <h1>
+                A <span class="highlight-green">Biblioteca de Jogos</span> criada pelos nossos alunos!
+            </h1>
+
+            <p>
+                Bem-vindos ao espaço oficial das turmas de robótica. Explore os projetos interativos criados pelas crianças e confira os melhores momentos do nosso evento!
+            </p>
+
+            <div class="hero-actions">
+                <a href="#biblioteca" class="btn-tactile btn-green">
+                    Jogar Agora 🎮
+                </a>
+                <a href="#galeria" class="btn-tactile btn-blue">
+                    Ver Galeria 📸
+                </a>
+            </div>
+        </div>
+
+        <div class="art-board">
+            <div class="tape-strip"></div>
+            <img src="LOGOTIPO OFICIAL fundo azul.png" alt="Paleta Nova Aquarela">
+            <p class="font-display" style="font-size: 1.25rem; font-weight: 600;">
+                Linhas de código, lógica e muita diversão!
+            </p>
+        </div>
+    </section>
+
+    <!-- Seção de Jogos (Em ordem alfabética) -->
+    <section id="biblioteca" class="section-container">
+        <div class="section-header">
+            <h2>🕹️ Fliperama de Robótica</h2>
+            <p>Projetos desenvolvidos do zero por cada aluno</p>
+        </div>
+
+        <div class="games-grid">
+            
+            <!-- Alice -->
+            <article class="sticker-card game-card theme-green">
+                <div>
+                    <div class="card-top-info">
+                        <h3 style="font-size: 1.5rem; line-height: 1.1;">Pega a Borboleta</h3>
+                        <span class="game-badge pending">Em breve</span>
+                    </div>
+                    <p style="font-size: 0.9rem; font-weight: 700; color: var(--green-border); margin-bottom: 10px;">Criado por: <strong>Alice</strong></p>
+                    <div class="game-preview-box"><span style="font-size: 0.9rem;">Capture as borboletas pelo cenário.</span></div>
+                    <div><span class="game-mechanic-tag">⌨️ Setinhas</span></div>
+                </div>
+                <div style="margin-top: 22px;">
+                    <button disabled class="btn-tactile" style="width: 100%;">Aguardando arquivo ⏳</button>
+                </div>
+            </article>
+
+            <!-- Átila -->
+            <article class="sticker-card game-card theme-lilac">
+                <div>
+                    <div class="card-top-info">
+                        <h3 style="font-size: 1.5rem; line-height: 1.1;">Ataque dos Dinossauros</h3>
+                        <span class="game-badge">Pronto</span>
+                    </div>
+                    <p style="font-size: 0.9rem; font-weight: 700; color: var(--lilac-border); margin-bottom: 10px;">Criado por: <strong>Átila</strong></p>
+                    <div class="game-preview-box"><span style="font-size: 0.9rem;">Ação e aventura com dinossauros!</span></div>
+                    <div><span class="game-mechanic-tag">🦖 Dinossauros</span></div>
+                </div>
+                <div style="margin-top: 22px;">
+                    <button onclick="abrirJogo('Ataque dos Dinossauros — Átila', 'jogos/AtaquedosDinossauros-Átila.html')" class="btn-tactile btn-lilac" style="width: 100%;">Jogar 🎮</button>
+                </div>
+            </article>
+
+            <!-- Cécilia -->
+            <article class="sticker-card game-card theme-blue">
+                <div>
+                    <div class="card-top-info">
+                        <h3 style="font-size: 1.5rem; line-height: 1.1;">Segue o Mouse</h3>
+                        <span class="game-badge pending">Em breve</span>
+                    </div>
+                    <p style="font-size: 0.9rem; font-weight: 700; color: var(--sky-blue); margin-bottom: 10px;">Criado por: <strong>Cécilia</strong></p>
+                    <div class="game-preview-box"><span style="font-size: 0.9rem;">O objeto interativo segue o cursor do mouse.</span></div>
+                    <div><span class="game-mechanic-tag">🖱️ Mouse</span></div>
+                </div>
+                <div style="margin-top: 22px;">
+                    <button disabled class="btn-tactile" style="width: 100%;">Aguardando arquivo ⏳</button>
+                </div>
+            </article>
+
+            <!-- Conrado -->
+            <article class="sticker-card game-card theme-yellow">
+                <div>
+                    <div class="card-top-info">
+                        <h3 style="font-size: 1.5rem; line-height: 1.1;">Estoure Balão</h3>
+                        <span class="game-badge pending">Em breve</span>
+                    </div>
+                    <p style="font-size: 0.9rem; font-weight: 700; color: #854D0E; margin-bottom: 10px;">Criado por: <strong>Conrado</strong></p>
+                    <div class="game-preview-box"><span style="font-size: 0.9rem;">Clique nos balões para estourá-los.</span></div>
+                    <div><span class="game-mechanic-tag">🖱️ Mouse</span></div>
+                </div>
+                <div style="margin-top: 22px;">
+                    <button disabled class="btn-tactile" style="width: 100%;">Aguardando arquivo ⏳</button>
+                </div>
+            </article>
+
+            <!-- Davi -->
+            <article class="sticker-card game-card theme-green">
+                <div>
+                    <div class="card-top-info">
+                        <h3 style="font-size: 1.5rem; line-height: 1.1;">Jogo do Davi</h3>
+                        <span class="game-badge pending">Em breve</span>
+                    </div>
+                    <p style="font-size: 0.9rem; font-weight: 700; color: var(--green-border); margin-bottom: 10px;">Criado por: <strong>Davi</strong></p>
+                    <div class="game-preview-box"><span style="font-size: 0.9rem;">Projeto de robótica em desenvolvimento.</span></div>
+                    <div><span class="game-mechanic-tag">🚀 Aventura</span></div>
+                </div>
+                <div style="margin-top: 22px;">
+                    <button disabled class="btn-tactile" style="width: 100%;">Aguardando arquivo ⏳</button>
+                </div>
+            </article>
+
+            <!-- Davi Moreira -->
+            <article class="sticker-card game-card theme-lilac">
+                <div>
+                    <div class="card-top-info">
+                        <h3 style="font-size: 1.5rem; line-height: 1.1;">Jogo do Davi Moreira</h3>
+                        <span class="game-badge pending">Em breve</span>
+                    </div>
+                    <p style="font-size: 0.9rem; font-weight: 700; color: var(--lilac-border); margin-bottom: 10px;">Criado por: <strong>Davi Moreira</strong></p>
+                    <div class="game-preview-box"><span style="font-size: 0.9rem;">Projeto de robótica em desenvolvimento.</span></div>
+                    <div><span class="game-mechanic-tag">🚀 Aventura</span></div>
+                </div>
+                <div style="margin-top: 22px;">
+                    <button disabled class="btn-tactile" style="width: 100%;">Aguardando arquivo ⏳</button>
+                </div>
+            </article>
+
+            <!-- Gustavo -->
+            <article class="sticker-card game-card theme-blue">
+                <div>
+                    <div class="card-top-info">
+                        <h3 style="font-size: 1.5rem; line-height: 1.1;">Futebol</h3>
+                        <span class="game-badge pending">Em breve</span>
+                    </div>
+                    <p style="font-size: 0.9rem; font-weight: 700; color: var(--sky-blue); margin-bottom: 10px;">Criado por: <strong>Gustavo</strong></p>
+                    <div class="game-preview-box"><span style="font-size: 0.9rem;">Partida de futebol interativa.</span></div>
+                    <div><span class="game-mechanic-tag">⚽ Esporte</span></div>
+                </div>
+                <div style="margin-top: 22px;">
+                    <button disabled class="btn-tactile" style="width: 100%;">Aguardando arquivo ⏳</button>
+                </div>
+            </article>
+
+            <!-- Henry -->
+            <article class="sticker-card game-card theme-yellow">
+                <div>
+                    <div class="card-top-info">
+                        <h3 style="font-size: 1.5rem; line-height: 1.1;">Jogo do Henry</h3>
+                        <span class="game-badge pending">Em breve</span>
+                    </div>
+                    <p style="font-size: 0.9rem; font-weight: 700; color: #854D0E; margin-bottom: 10px;">Criado por: <strong>Henry</strong></p>
+                    <div class="game-preview-box"><span style="font-size: 0.9rem;">Projeto de robótica em desenvolvimento.</span></div>
+                    <div><span class="game-mechanic-tag">🚀 Aventura</span></div>
+                </div>
+                <div style="margin-top: 22px;">
+                    <button disabled class="btn-tactile" style="width: 100%;">Aguardando arquivo ⏳</button>
+                </div>
+            </article>
+
+            <!-- João Caixeta -->
+            <article class="sticker-card game-card theme-green">
+                <div>
+                    <div class="card-top-info">
+                        <h3 style="font-size: 1.5rem; line-height: 1.1;">Pega-Pega</h3>
+                        <span class="game-badge pending">Em breve</span>
+                    </div>
+                    <p style="font-size: 0.9rem; font-weight: 700; color: var(--green-border); margin-bottom: 10px;">Criado por: <strong>João Caixeta</strong></p>
+                    <div class="game-preview-box"><span style="font-size: 0.9rem;">Fuja ou pegue os personagens!</span></div>
+                    <div><span class="game-mechanic-tag">⌨️ Setinhas</span></div>
+                </div>
+                <div style="margin-top: 22px;">
+                    <button disabled class="btn-tactile" style="width: 100%;">Aguardando arquivo ⏳</button>
+                </div>
+            </article>
+
+            <!-- João Ribeiro -->
+            <article class="sticker-card game-card theme-lilac">
+                <div>
+                    <div class="card-top-info">
+                        <h3 style="font-size: 1.5rem; line-height: 1.1;">Clicker</h3>
+                        <span class="game-badge">Pronto</span>
+                    </div>
+                    <p style="font-size: 0.9rem; font-weight: 700; color: var(--lilac-border); margin-bottom: 10px;">Criado por: <strong>João Ribeiro</strong></p>
+                    <div class="game-preview-box"><span style="font-size: 0.9rem;">Clique o mais rápido possível para pontuar!</span></div>
+                    <div><span class="game-mechanic-tag">🖱️ Mouse</span></div>
+                </div>
+                <div style="margin-top: 22px;">
+                    <button onclick="abrirJogo('Clicker — João Ribeiro', 'jogos/ribeiro.html')" class="btn-tactile btn-lilac" style="width: 100%;">Jogar 🎮</button>
+                </div>
+            </article>
+
+            <!-- Lucas -->
+            <article class="sticker-card game-card theme-blue">
+                <div>
+                    <div class="card-top-info">
+                        <h3 style="font-size: 1.5rem; line-height: 1.1;">Equilíbrio</h3>
+                        <span class="game-badge pending">Em breve</span>
+                    </div>
+                    <p style="font-size: 0.9rem; font-weight: 700; color: var(--sky-blue); margin-bottom: 10px;">Criado por: <strong>Lucas</strong></p>
+                    <div class="game-preview-box"><span style="font-size: 0.9rem;">Mantenha os objetos em perfeito equilíbrio!</span></div>
+                    <div><span class="game-mechanic-tag">⚖️ Equilíbrio</span></div>
+                </div>
+                <div style="margin-top: 22px;">
+                    <button disabled class="btn-tactile" style="width: 100%;">Aguardando arquivo ⏳</button>
+                </div>
+            </article>
+
+            <!-- Lucca -->
+            <article class="sticker-card game-card theme-yellow">
+                <div>
+                    <div class="card-top-info">
+                        <h3 style="font-size: 1.5rem; line-height: 1.1;">Clicker</h3>
+                        <span class="game-badge">Pronto</span>
+                    </div>
+                    <p style="font-size: 0.9rem; font-weight: 700; color: #854D0E; margin-bottom: 10px;">Criado por: <strong>Lucca</strong></p>
+                    <div class="game-preview-box"><span style="font-size: 0.9rem;">Clique repetidamente para acumular pontos.</span></div>
+                    <div><span class="game-mechanic-tag">🖱️ Mouse</span></div>
+                </div>
+                <div style="margin-top: 22px;">
+                    <button onclick="abrirJogo('Clicker — Lucca', 'jogos/lucca.html')" class="btn-tactile btn-yellow" style="width: 100%;">Jogar 🎮</button>
+                </div>
+            </article>
+
+            <!-- Luiz -->
+            <article class="sticker-card game-card theme-green">
+                <div>
+                    <div class="card-top-info">
+                        <h3 style="font-size: 1.5rem; line-height: 1.1;">Perguntas e Respostas</h3>
+                        <span class="game-badge">Pronto</span>
+                    </div>
+                    <p style="font-size: 0.9rem; font-weight: 700; color: var(--green-border); margin-bottom: 10px;">Criado por: <strong>Luiz</strong></p>
+                    <div class="game-preview-box"><span style="font-size: 0.9rem;">Teste seus conhecimentos com perguntas divertidas!</span></div>
+                    <div><span class="game-mechanic-tag">❓ Quiz</span></div>
+                </div>
+                <div style="margin-top: 22px;">
+                    <button onclick="abrirJogo('Perguntas e Respostas — Luiz', 'jogos/luiz.html')" class="btn-tactile btn-green" style="width: 100%;">Jogar 🎮</button>
+                </div>
+            </article>
+
+            <!-- Miguel -->
+            <article class="sticker-card game-card theme-lilac">
+                <div>
+                    <div class="card-top-info">
+                        <h3 style="font-size: 1.5rem; line-height: 1.1;">Jogo do Miguel</h3>
+                        <span class="game-badge pending">Em breve</span>
+                    </div>
+                    <p style="font-size: 0.9rem; font-weight: 700; color: var(--lilac-border); margin-bottom: 10px;">Criado por: <strong>Miguel</strong></p>
+                    <div class="game-preview-box"><span style="font-size: 0.9rem;">Projeto de robótica em desenvolvimento.</span></div>
+                    <div><span class="game-mechanic-tag">🚀 Aventura</span></div>
+                </div>
+                <div style="margin-top: 22px;">
+                    <button disabled class="btn-tactile" style="width: 100%;">Aguardando arquivo ⏳</button>
+                </div>
+            </article>
+
+            <!-- Murilo -->
+            <article class="sticker-card game-card theme-blue">
+                <div>
+                    <div class="card-top-info">
+                        <h3 style="font-size: 1.5rem; line-height: 1.1;">Jogo do Murilo</h3>
+                        <span class="game-badge pending">Em breve</span>
+                    </div>
+                    <p style="font-size: 0.9rem; font-weight: 700; color: var(--sky-blue); margin-bottom: 10px;">Criado por: <strong>Murilo</strong></p>
+                    <div class="game-preview-box"><span style="font-size: 0.9rem;">Projeto de robótica em desenvolvimento.</span></div>
+                    <div><span class="game-mechanic-tag">🚀 Aventura</span></div>
+                </div>
+                <div style="margin-top: 22px;">
+                    <button disabled class="btn-tactile" style="width: 100%;">Aguardando arquivo ⏳</button>
+                </div>
+            </article>
+
+            <!-- Pedro -->
+            <article class="sticker-card game-card theme-yellow">
+                <div>
+                    <div class="card-top-info">
+                        <h3 style="font-size: 1.5rem; line-height: 1.1;">Estoure os Balões</h3>
+                        <span class="game-badge">Pronto</span>
+                    </div>
+                    <p style="font-size: 0.9rem; font-weight: 700; color: #854D0E; margin-bottom: 10px;">Criado por: <strong>Pedro</strong></p>
+                    <div class="game-preview-box"><span style="font-size: 0.9rem;">Estoure os balões que aparecem na tela!</span></div>
+                    <div><span class="game-mechanic-tag">🖱️ Mouse</span></div>
+                </div>
+                <div style="margin-top: 22px;">
+                    <button onclick="abrirJogo('Estoure os Balões — Pedro', 'jogos/pedro.html')" class="btn-tactile btn-yellow" style="width: 100%;">Jogar 🎮</button>
+                </div>
+            </article>
+
+            <!-- Saulo -->
+            <article class="sticker-card game-card theme-green">
+                <div>
+                    <div class="card-top-info">
+                        <h3 style="font-size: 1.5rem; line-height: 1.1;">Não encoste no Verity</h3>
+                        <span class="game-badge">Pronto</span>
+                    </div>
+                    <p style="font-size: 0.9rem; font-weight: 700; color: var(--green-border); margin-bottom: 10px;">Criado por: <strong>Saulo</strong></p>
+                    <div class="game-preview-box"><span style="font-size: 0.9rem;">Desvie do Verity e sobreviva!</span></div>
+                    <div><span class="game-mechanic-tag">⚡ Sobrevivência</span></div>
+                </div>
+                <div style="margin-top: 22px;">
+                    <button onclick="abrirJogo('Não encoste no Verity — Saulo', 'jogos/saulo-verity/index.html')" class="btn-tactile btn-green" style="width: 100%;">Jogar 🎮</button>
+                </div>
+            </article>
+
+            <!-- Viviane -->
+            <article class="sticker-card game-card theme-lilac">
+                <div>
+                    <div class="card-top-info">
+                        <h3 style="font-size: 1.5rem; line-height: 1.1;">Perguntas e Respostas</h3>
+                        <span class="game-badge">Pronto</span>
+                    </div>
+                    <p style="font-size: 0.9rem; font-weight: 700; color: var(--lilac-border); margin-bottom: 10px;">Criado por: <strong>Viviane</strong></p>
+                    <div class="game-preview-box"><span style="font-size: 0.9rem;">Desafio interativo de perguntas e respostas.</span></div>
+                    <div><span class="game-mechanic-tag">❓ Quiz</span></div>
+                </div>
+                <div style="margin-top: 22px;">
+                    <button onclick="abrirJogo('Perguntas e Respostas — Viviane', 'jogos/viviane.html')" class="btn-tactile btn-lilac" style="width: 100%;">Jogar 🎮</button>
+                </div>
+            </article>
+
+        </div>
+    </section>
+
+    <!-- Seção: Galeria de Fotos e Vídeos -->
+    <section id="galeria" class="section-container">
+        <div class="section-header">
+            <h2>📸 Galeria de Fotos & Vídeos</h2>
+            <p>Momentos marcantes das aulas e da apresentação dos projetos</p>
+        </div>
+
+        <!-- Carrossel automático com fotos locais da pasta galeria/ -->
+        <div class="slideshow-box" id="slideBox">
+            <div class="slideshow-stage">
+                <img id="slideImg" src="galeria/foto1.jpg" alt="Foto da turma de robótica">
+            </div>
+            <div class="slideshow-caption">
+                <span id="slideLegenda" style="font-weight: 700; color: var(--ink);">1 / 3 — Alunos programando no Scratch</span>
+                <div class="slideshow-controls">
+                    <button type="button" onclick="mudarSlide(-1)" class="btn-tactile btn-yellow" style="padding: 8px 14px; font-size: 0.9rem;">◀</button>
+                    <button type="button" onclick="mudarSlide(1)" class="btn-tactile btn-green" style="padding: 8px 14px; font-size: 0.9rem;">▶</button>
+                </div>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-bottom: 36px;">
+            <!-- Troque o href abaixo pelo link do álbum no Google Fotos -->
+            <a href="https://photos.app.goo.gl/7sXqmvVq5q45DFUi8" target="_blank" class="btn-tactile btn-yellow" style="font-size: 1.15rem; padding: 16px 32px;">
+                🖼️ Acessar Álbum Completo no Google Fotos
+            </a>
+        </div>
+
+        <div class="gallery-grid">
+            <div class="gallery-item">
+                <div class="gallery-media">
+                    <span>📸 Foto da Turma (Exemplo)</span>
+                </div>
+                <div class="gallery-info">
+                    <h3 style="font-size: 1.1rem; margin-bottom: 4px;">Alunos em Ação</h3>
+                    <p style="font-size: 0.9rem; color: var(--ink-soft);">Criando as lógicas no Scratch durante a aula de robótica.</p>
+                </div>
+            </div>
+
+            <div class="gallery-item">
+                <div class="gallery-media">
+                    <span>🎥 Vídeo da Apresentação (Exemplo)</span>
+                </div>
+                <div class="gallery-info">
+                    <h3 style="font-size: 1.1rem; margin-bottom: 4px;">Lançamento dos Jogos</h3>
+                    <p style="font-size: 0.9rem; color: var(--ink-soft);">Demonstração dos jogos para os colegas e familiares.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Janela Modal para rodar o jogo -->
+    <div id="gameModal" class="modal-overlay" onclick="fecharModalFora(event)">
+        <div class="modal-window">
+            <div class="modal-header">
+                <h3 id="modalGameTitle" style="font-size: 1.4rem;">Nome do Jogo</h3>
+                <div style="display: flex; gap: 10px;">
+                    <button onclick="telaCheiaJogo()" class="btn-tactile btn-green" style="padding: 8px 16px; font-size: 0.9rem;">
+                        Tela Cheia
+                    </button>
+                    <button onclick="fecharJogo()" class="btn-tactile btn-coral" style="padding: 8px 16px; font-size: 0.9rem;">
+                        Fechar
+                    </button>
+                </div>
+            </div>
+            <div class="modal-body">
+                <iframe id="gameFrame" src="" allowfullscreen></iframe>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer-inner">
+            <img src="LOGOTIPO OFICIAL fundo azul.png" alt="Escola Nova Aquarela" style="height: 44px;">
+            <p style="font-weight: 700; color: var(--ink);">Escola Nova Aquarela — Biblioteca de Jogos de Robótica.</p>
+        </div>
+    </footer>
+
+    <script>
+        const modal = document.getElementById('gameModal');
+        const frame = document.getElementById('gameFrame');
+        const titleEl = document.getElementById('modalGameTitle');
+
+        function abrirJogo(titulo, caminhoArquivo) {
+            titleEl.textContent = titulo;
+            frame.src = caminhoArquivo;
+            modal.classList.add('active');
+            setTimeout(() => frame.focus(), 150);
+        }
+
+        function fecharJogo() {
+            modal.classList.remove('active');
+            frame.src = '';
+        }
+
+        function fecharModalFora(event) {
+            if (event.target === modal) {
+                fecharJogo();
+            }
+        }
+
+        function telaCheiaJogo() {
+            if (frame.requestFullscreen) {
+                frame.requestFullscreen();
+            } else if (frame.webkitRequestFullscreen) {
+                frame.webkitRequestFullscreen();
+            }
+        }
+
+        const slides = [
+            { src: 'galeria/foto1.jpg', legenda: 'Alunos programando no Scratch' },
+            { src: 'galeria/foto2.jpg', legenda: 'Testando os jogos da turma' },
+            { src: 'galeria/foto3.jpg', legenda: 'Apresentação dos projetos' }
+        ];
+
+        let slideAtual = 0;
+        const slideImg = document.getElementById('slideImg');
+        const slideLegenda = document.getElementById('slideLegenda');
+        const slideBox = document.getElementById('slideBox');
+
+        function renderSlide() {
+            if (!slideImg || !slides.length) return;
+            const item = slides[slideAtual];
+            slideImg.src = item.src;
+            slideImg.alt = item.legenda;
+            slideLegenda.textContent = `${slideAtual + 1} / ${slides.length} — ${item.legenda}`;
+        }
+
+        function mudarSlide(direcao) {
+            slideAtual = (slideAtual + direcao + slides.length) % slides.length;
+            renderSlide();
+        }
+
+        let intervaloSlide = setInterval(() => mudarSlide(1), 3500);
+
+        if (slideBox) {
+            slideBox.addEventListener('mouseenter', () => clearInterval(intervaloSlide));
+            slideBox.addEventListener('mouseleave', () => {
+                intervaloSlide = setInterval(() => mudarSlide(1), 3500);
+            });
+        }
+
+        renderSlide();
+    </script>
+
+</body>
+</html>
