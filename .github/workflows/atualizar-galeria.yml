@@ -1,0 +1,48 @@
+name: Atualizar Galeria
+
+on:
+  push:
+    paths:
+      - 'galeria/**'
+      - '.github/workflows/atualizar-galeria.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  gerar-lista:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Baixar repositório
+        uses: actions/checkout@v4
+
+      - name: Gerar galeria.json com as imagens da pasta galeria/
+        run: |
+          node <<'NODE'
+          const fs = require("fs");
+          const path = require("path");
+          const dir = "galeria";
+
+          if (!fs.existsSync(dir)) {
+            fs.writeFileSync("galeria.json", "[]");
+            process.exit(0);
+          }
+
+          const exts = [".jpg", ".jpeg", ".png", ".webp", ".gif"];
+          const files = fs.readdirSync(dir)
+            .filter(file => exts.includes(path.extname(file).toLowerCase()))
+            .sort((a, b) => a.localeCompare(b, "pt-BR"));
+
+          fs.writeFileSync("galeria.json", JSON.stringify(files, null, 2));
+          NODE
+
+      - name: Salvar galeria.json no repositório
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add galeria.json
+          if ! git diff --staged --quiet; then
+            git commit -m "chore: atualiza lista da galeria"
+            git push
+          fi
