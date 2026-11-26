@@ -914,6 +914,23 @@
         const slideVideo = document.getElementById('slideVideo');
         const slideLegenda = document.getElementById('slideLegenda');
         const slideBox = document.getElementById('slideBox');
+        let imagemPreCarregada = null;
+        let urlPreCarregada = '';
+
+        function prepararProximaImagem() {
+            if (slides.length < 2) return;
+            const proximo = (slideAtual + 1) % slides.length;
+            const arquivo = slides[proximo];
+            if (/\.(mp4|webm|ogg|mov|m4v)$/i.test(arquivo)) return;
+
+            const caminho = 'galeria/' + encodeURIComponent(arquivo);
+            if (caminho === urlPreCarregada) return;
+            imagemPreCarregada = new Image();
+            imagemPreCarregada.decoding = 'async';
+            imagemPreCarregada.fetchPriority = 'low';
+            imagemPreCarregada.src = caminho;
+            urlPreCarregada = caminho;
+        }
 
         function renderSlide() {
             if (!slideImg || !slideLegenda) return;
@@ -957,6 +974,7 @@
             slideImg.hidden = false;
             slideImg.src = caminho;
             slideImg.alt = 'Foto ' + (slideAtual + 1) + ' de ' + slides.length;
+            prepararProximaImagem();
             iniciarAutoPlay();
         }
 
