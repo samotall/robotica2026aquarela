@@ -1013,11 +1013,30 @@
             });
         }
 
+        function escolherFotoInicial() {
+            const fotos = slides.filter(arquivo => !/\.(mp4|webm|ogg|mov|m4v)$/i.test(arquivo));
+            if (!fotos.length) return 0;
+
+            const chave = 'novaAquarelaFotoInicial';
+            try {
+                const fotoSalva = localStorage.getItem(chave);
+                if (fotoSalva && fotos.includes(fotoSalva)) {
+                    return slides.indexOf(fotoSalva);
+                }
+            } catch (_) {}
+
+            const escolhida = fotos[Math.floor(Math.random() * fotos.length)];
+            try {
+                localStorage.setItem(chave, escolhida);
+            } catch (_) {}
+            return slides.indexOf(escolhida);
+        }
+
         fetch('galeria.json')
             .then(res => (res.ok ? res.json() : []))
             .then(lista => {
                 slides = Array.isArray(lista) ? lista : [];
-                slideAtual = 0;
+                slideAtual = escolherFotoInicial();
                 renderSlide();
                 iniciarAutoPlay();
             })
