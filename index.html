@@ -357,6 +357,9 @@
 
         .slideshow-stage {
             position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             width: 100%;
             height: auto;
             overflow: visible;
@@ -366,8 +369,10 @@
         .slideshow-stage img,
         .slideshow-stage video {
             display: block;
-            width: 100%;
+            width: auto;
             height: auto;
+            max-width: 100%;
+            max-height: 60vh;
             object-fit: contain;
         }
 
